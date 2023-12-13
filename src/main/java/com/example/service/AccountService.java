@@ -3,9 +3,7 @@ package com.example.service;
 import com.example.entity.Account;
 import com.example.repository.AccountRepository;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;

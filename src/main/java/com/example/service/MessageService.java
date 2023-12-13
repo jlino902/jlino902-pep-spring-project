@@ -3,14 +3,11 @@ package com.example.service;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import com.example.entity.Message;
-import com.example.entity.Account;
 import com.example.repository.MessageRepository;
 import com.example.repository.AccountRepository;
 
@@ -40,7 +37,6 @@ public class MessageService {
     }
 
     public Optional<Message> getMessageById(Integer message_id) {
-        System.out.println("Within the message service. Here's the id: " + message_id + " and the message: " + messageRepository.findById(message_id) );
         Optional<Message> message = messageRepository.findById(message_id);
         if (message != null) {
             return message;
@@ -61,19 +57,18 @@ public class MessageService {
     }
 
     public Message updateMessage (int message_id, Message message) {
-        Message foundMessage = messageRepository.getById(message_id);
+        Optional<Message> foundMessage = messageRepository.findById(message_id);
         
-        if(foundMessage != null && message.getMessage_text().length() < 255 && !message.getMessage_text().isBlank()) {
-            foundMessage.setMessage_text(message.getMessage_text());
-            Message updatedMessage = messageRepository.saveAndFlush(foundMessage);
-            return updatedMessage;
+        if(!foundMessage.isEmpty() && message.getMessage_text().length() < 255 && !message.getMessage_text().isBlank()) {
+            Message plainMessage = messageRepository.getById(message_id);
+            plainMessage.setMessage_text(message.getMessage_text());
+            return messageRepository.save(plainMessage);
         }
         else { return null; }
     }
 
     public List<Message> getAllMessagesByUser(int account_id) {
-        Message messageExample = new Message();
-        messageExample.setPosted_by(account_id);
+        Message messageExample = new Message(null, account_id, null, null);
         Example<Message> example = Example.of(messageExample);
         return messageRepository.findAll(example);
     }
