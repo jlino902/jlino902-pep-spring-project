@@ -1,6 +1,10 @@
 package com.example.service;
 
 import java.util.List;
+import java.util.Optional;
+
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -17,13 +21,15 @@ public class MessageService {
 
     public MessageService() {
     }
+
     @Autowired
-    public MessageService(MessageRepository messageRepository) {
+    public MessageService(AccountRepository accountRepository, MessageRepository messageRepository) {
         this.messageRepository = messageRepository;
+        this.accountRepository = accountRepository;
     }
 
     public Message createMessage(Message message) {
-        if(!message.getMessage_text().isBlank() && message.getMessage_text().length() < 255 && accountRepository.findById(message.getPosted_by()).isPresent()) {
+        if(!message.getMessage_text().isBlank() && message.getMessage_text().length() < 255  && accountRepository.existsById(message.getPosted_by())) {
             return messageRepository.save(message);
         }
         else { return null; }
@@ -33,12 +39,14 @@ public class MessageService {
         return messageRepository.findAll();
     }
 
-    public Message getMessageById(int message_id) {
+    public Message getMessageById(Integer message_id) {
+        System.out.println("Within the message service. Here's the id: " + message_id + " and the message: " );
         return messageRepository.getById(message_id);
     }
 
     public Message deleteMessage (int message_id) {
         Message message = messageRepository.getById(message_id);
+        System.out.println("Within the service. Here's the message" + message);
         if (message != null) {
             messageRepository.deleteById(message_id);
             return message;
