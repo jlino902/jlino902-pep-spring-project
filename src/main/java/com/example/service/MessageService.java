@@ -39,13 +39,19 @@ public class MessageService {
         return messageRepository.findAll();
     }
 
-    public Message getMessageById(Integer message_id) {
-        System.out.println("Within the message service. Here's the id: " + message_id + " and the message: " );
-        return messageRepository.getById(message_id);
+    public Optional<Message> getMessageById(Integer message_id) {
+        System.out.println("Within the message service. Here's the id: " + message_id + " and the message: " + messageRepository.findById(message_id) );
+        Optional<Message> message = messageRepository.findById(message_id);
+        if (message != null) {
+            return message;
+        }
+        else {
+            return null;
+        }
     }
 
-    public Message deleteMessage (int message_id) {
-        Message message = messageRepository.getById(message_id);
+    public Optional<Message> deleteMessage (int message_id) {
+        Optional<Message> message = messageRepository.findById(message_id);
         System.out.println("Within the service. Here's the message" + message);
         if (message != null) {
             messageRepository.deleteById(message_id);
@@ -55,8 +61,12 @@ public class MessageService {
     }
 
     public Message updateMessage (int message_id, Message message) {
-        if(messageRepository.getById(message_id) != null && message.getMessage_text().length() < 255 && !message.getMessage_text().isBlank()) {
-            return messageRepository.saveAndFlush(message);
+        Message foundMessage = messageRepository.getById(message_id);
+        
+        if(foundMessage != null && message.getMessage_text().length() < 255 && !message.getMessage_text().isBlank()) {
+            foundMessage.setMessage_text(message.getMessage_text());
+            Message updatedMessage = messageRepository.saveAndFlush(foundMessage);
+            return updatedMessage;
         }
         else { return null; }
     }
